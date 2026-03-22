@@ -145,8 +145,6 @@
     const cam = cameraPhrase(cameraKind);
 
     const parts = [
-      "ABSURDISM — REALISTIC HANDHELD PHOTO PROMPT",
-      "",
       `SCENE IDEA (anchor all details to this): "${ideaLine}"`,
       "",
       "OUTPUT INTENT:",

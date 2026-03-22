@@ -46,15 +46,19 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   font-family: var(--font-sans);
   color: var(--text);
   background: var(--bg-deep);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 .noise {
@@ -151,6 +155,9 @@ body {
   max-width: 960px;
   margin: 0 auto;
   padding: 2.75rem 1.25rem 1.75rem;
+  padding-top: max(2.75rem, env(safe-area-inset-top));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
   text-align: center;
 }
 
@@ -204,6 +211,9 @@ body {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 1.25rem 3rem;
+  padding-bottom: max(3rem, calc(2rem + env(safe-area-inset-bottom)));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
 }
 
 .glass {
@@ -355,6 +365,7 @@ body {
   cursor: pointer;
   padding: 0.72rem 1.45rem;
   overflow: hidden;
+  touch-action: manipulation;
   transition: transform 0.25s var(--ease-spring), box-shadow 0.35s, opacity 0.2s;
 }
 
@@ -382,11 +393,18 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
-.btn--primary:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 32px rgba(201, 169, 98, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 32px rgba(201, 169, 98, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  .btn--ghost:hover:not(:disabled) {
+    border-color: var(--stroke-bright);
+    background: rgba(201, 169, 98, 0.06);
+  }
 }
 
 .btn--primary:active:not(:disabled) {
@@ -427,11 +445,6 @@ body {
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.btn--ghost:hover:not(:disabled) {
-  border-color: var(--stroke-bright);
-  background: rgba(201, 169, 98, 0.06);
 }
 
 .out-head {
@@ -621,10 +634,155 @@ body {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 1.25rem 2.75rem;
+  padding-bottom: max(2.75rem, env(safe-area-inset-bottom));
+  padding-left: max(1.25rem, env(safe-area-inset-left));
+  padding-right: max(1.25rem, env(safe-area-inset-right));
   text-align: center;
   font-size: 0.74rem;
   letter-spacing: 0.06em;
   color: rgba(154, 146, 136, 0.85);
+}
+
+/* ——— Mobile & small tablets ——— */
+@media (max-width: 639px) {
+  .site-header {
+    padding: 1.75rem 1rem 1.25rem;
+    padding-top: max(1.75rem, env(safe-area-inset-top));
+  }
+
+  .brand {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .brand__line {
+    display: none;
+  }
+
+  .tagline {
+    font-size: 0.88rem;
+    line-height: 1.65;
+    padding: 0 0.25rem;
+  }
+
+  .layout {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  .glass {
+    border-radius: 18px;
+  }
+
+  .panel {
+    padding: 1rem 1rem 1.25rem;
+    margin-bottom: 2rem;
+  }
+
+  .panel__grid {
+    gap: 1.35rem;
+  }
+
+  .input-idea {
+    min-height: 132px;
+    padding: 0.9rem 1rem;
+    font-size: 16px;
+  }
+
+  .options {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .opt {
+    width: 100%;
+  }
+
+  .select {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0.6rem 0.75rem;
+    font-size: 16px;
+  }
+
+  .btn--primary {
+    width: 100%;
+    min-height: 48px;
+    align-self: stretch;
+    justify-content: center;
+  }
+
+  .btn--ghost {
+    min-height: 44px;
+    min-width: 5.5rem;
+    padding: 0.55rem 1rem;
+  }
+
+  .out-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  .out-head .btn--ghost {
+    margin-left: 0;
+    align-self: stretch;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .field-label--center {
+    text-align: left;
+    width: 100%;
+  }
+
+  .output-wrap,
+  .output-wrap.is-loading {
+    min-height: 220px;
+  }
+
+  .output {
+    min-height: 200px;
+    max-height: min(55dvh, 480px);
+    padding: 1rem;
+    font-size: 0.8rem;
+    line-height: 1.65;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .output-skeleton {
+    padding: 1rem;
+  }
+
+  .info {
+    font-size: 0.88rem;
+    padding: 0 0.15rem;
+  }
+
+  .info h2 {
+    font-size: 1.2rem;
+  }
+
+  .info-list,
+  .steps {
+    padding-left: 1.05rem;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 839px) {
+  .panel__grid {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .options {
+    justify-content: flex-start;
+  }
+
+  .select {
+    min-width: 12rem;
+  }
 }
 
 .visually-hidden {

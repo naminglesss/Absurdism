@@ -66,7 +66,9 @@
 
   function detectContext(tokens) {
     const joined = tokens.join(" ");
-    const hasCar = tokens.some((t) => CAR_BRANDS.has(t)) || /\b(car|drive|highway|supercar|hypercar|road)\b/i.test(joined);
+    const hasCar =
+      tokens.some((t) => CAR_BRANDS.has(t)) ||
+      /\b(car|drive|highway|supercar|hypercar|road|jesko|vehicle)\b/i.test(joined);
     const hasWatch = tokens.some((t) => WATCH_HINTS.has(t));
     const hasGym = tokens.some((t) => GYM_HINTS.has(t));
     let city = null;
@@ -76,111 +78,208 @@
         break;
       }
     }
-    return { hasCar, hasWatch, hasGym, city };
-  }
-
-  function cameraPhrase(kind) {
-    switch (kind) {
-      case "android":
-        return "handheld Android phone photo, realistic smartphone JPEG processing, mild HDR, not a DSLR render";
-      case "compact":
-        return "handheld compact camera snapshot, natural color science, slight lens vignette, not CGI";
-      default:
-        return "handheld iPhone photo, realistic smartphone HDR, natural sharpening, not a studio render";
+    const hasNight = /\b(night|nighttime|midnight|evening|dusk|nocturnal|neon|streetlight|after\s*dark)\b/i.test(joined);
+    const hasWater = /\b(water|ocean|sea|bay|beach|pool|jetski|jet\s*ski|yacht|boat|marine|harbor|harbour|ripples?)\b/i.test(
+      joined
+    );
+    const hasPortraitCue = /\b(portrait|face|subject|person|model|character|shirtless|man|woman|leaning)\b/i.test(joined);
+    let angleNote = null;
+    if (/\b(high\s*angle|from\s*above|top\s*down|aerial|overhead)\b/i.test(joined)) {
+      angleNote = "high angle looking down — camera above eye line, cinematic downward perspective.";
+    } else if (/\b(low\s*angle|from\s*below|worm|hero\s*angle|upward)\b/i.test(joined)) {
+      angleNote = "low angle looking up — dramatic upward perspective, believable lens distortion only if natural.";
     }
+
+    return { hasCar, hasWatch, hasGym, city, hasNight, hasWater, hasPortraitCue, angleNote };
   }
 
-  function subjectBlock(ctx) {
+  function technicalBlock(cameraKind, aspect) {
+    const base = [
+      `Aspect ratio: ${aspect} — compose for this frame; do not add fake letterboxing unless the host app requires it.`,
+    ];
+
+    if (cameraKind === "compact") {
+      base.push(
+        "Cinematic DSLR / mirrorless look: full-frame sensor character, e.g. Canon EOS R5 class; 85mm lens f/1.4 where a portrait look fits the idea, otherwise 35mm or 50mm as appropriate.",
+        "ISO 400–800 range feel, fine grain, natural highlight roll-off; 8K-level fine detail without plastic oversharpening or fake 'AI enhance' crunch.",
+        "Shallow depth of field only where motivated; background bokeh must look optical, not painted."
+      );
+    } else if (cameraKind === "android") {
+      base.push(
+        "Flagship Android smartphone capture: realistic computational HDR, natural color science, mild lens vignette, believable JPEG texture.",
+        "Visible moderate ISO grain in shadows; no DSLR CGI look."
+      );
+    } else {
+      base.push(
+        "Latest iPhone Pro / Pro Max tier (or equivalent flagship): handheld, realistic smartphone HDR, natural sharpening, authentic lens flare behavior.",
+        "Sensor grain in darker regions; exposure choices should feel like a real phone in the described lighting, not a studio render."
+      );
+    }
+
+    base.push(
+      "Keep highlight and shadow separation believable — not HDR-crushed, not flat log.",
+      "Slight motion micro-blur on edges acceptable if it sells a candid capture."
+    );
+
+    return ["TECHNICAL CAPTURE:", ...base].join("\n");
+  }
+
+  function compositionBlock(ctx) {
+    const lines = [
+      "COMPOSITION & CINEMATIC FRAMING:",
+      "Build a deliberate, slightly unbalanced frame when it suits the idea — avoid default dead-center product symmetry unless the scene calls for it.",
+      "Foreground / midground / background hierarchy: let one layer dominate (Subject, vehicle, or skyline) and let supporting elements recede with atmospheric depth.",
+    ];
+    if (ctx.angleNote) {
+      lines.push(ctx.angleNote);
+    } else if (ctx.hasCar) {
+      lines.push(
+        "When inside a car: driver's or passenger POV works — windshield and dash as foreground planes, world readable through glass with double reflections and correct parallax.",
+        "When outside with a car: show believable stance — leaning on bodywork, standing beside, or three-quarter automotive hero angle; match realistic focal length perspective."
+      );
+    } else {
+      lines.push(
+        "Place the Subject with intent — slightly off-center, rule-of-thirds, or environmental framing (architecture, water line, leading rails) so the image feels directed, not accidental.",
+        "Optional foreground occlusion (hands, fabric, vehicle edge, spray) to increase depth and scale."
+      );
+    }
+    lines.push("Horizon and verticals should stay plausible; avoid fisheye unless the idea implies ultrawide phone lens.");
+    return lines.join("\n");
+  }
+
+  function referenceAndSubjectBlock(ctx) {
+    const lines = [
+      "REFERENCE IMAGE & SUBJECT FIDELITY (when your app accepts an image + prompt):",
+      "If a reference face/body upload exists: the Subject must remain visually identical to that reference — same facial structure, proportions, skin tone, and distinguishing marks.",
+      "Do not beautify, de-age, slim, or reshape the face or skull; no symmetry-forcing 'perfect' features. The Subject's face must match the reference as closely as the model allows.",
+      "Describe people as \"the Subject\" — wardrobe, jewelry, skin sheen, wet hair, and accessories must follow the idea and stay physically plausible.",
+      "Skin: natural texture with visible pores and micro-contrast where light hits; clear healthy skin without fake plastic blur unless the idea explicitly calls for heavy makeup.",
+      "Clothing and materials: resolve fine weave, stitching, metal, glass, water, and paint at a believable macro level.",
+    ];
     if (ctx.hasWatch && !ctx.hasCar) {
-      return [
-        "SUBJECT & MATERIALS:",
-        "Wrist and watch are primary focus; metal, sapphire, and strap texture must look physically correct.",
-        "No beauty-filter skin: keep pores and micro-contrast; forbid plastic skin or wax highlights.",
-      ].join("\n");
+      lines.push(
+        "Watch focus: metal brushing, sapphire glare, bezel numerals, and strap texture must be optically correct under scene lighting."
+      );
     }
     if (ctx.hasGym) {
-      return [
-        "SUBJECT & CONTINUITY:",
-        "Athlete looks like a real person mid-set: sweat sheen where natural, veins and muscle tone believable.",
-        "If a face is visible, keep identity stable (no beautification, no reshaping bone structure).",
-      ].join("\n");
+      lines.push(
+        "Athletic context: sweat sheen, muscle tone, and veins where appropriate; no exaggerated anatomy."
+      );
     }
-    return [
-      "SUBJECT & CONTINUITY:",
-      "If a person appears, preserve natural proportions; no beauty-filter smoothing or reshaping.",
-      "Skin texture, fabric weave, and reflections must stay photographic, not illustrated.",
-    ].join("\n");
+    return lines.join("\n");
   }
 
   function vehicleBlock(ctx, ideaLine) {
     if (!ctx.hasCar) return "";
-    const city = ctx.city ? ` Use environment cues consistent with ${ctx.city} if visible.` : "";
+    const city = ctx.city ? ` Environmental cues may echo ${ctx.city} if the idea implies that setting.` : "";
     return [
       "",
-      "VEHICLE & COCKPIT ACCURACY:",
-      `Scene inspired by: "${ideaLine}".`,
-      "Specify believable supercar or sports-car interior/exterior details: carbon fiber trim alignment, stitch direction,",
-      "authentic dashboard layout, correct steering wheel geometry, and realistic glass reflections.",
-      "No floating logos or impossible panel gaps; tires and brake hardware should match the car class." + city,
+      "VEHICLE & PROPS:",
+      `Expand this idea faithfully: "${ideaLine}".`,
+      "Nameplates and body lines must match the implied marque (e.g. hypercar proportions, active aero, carbon weave direction, panel gaps, brake hardware).",
+      "Paint: correct specular response and orange-peel subtlety; glass: realistic tint and double reflections; interior: believable stitching and trim alignment if visible." + city,
     ].join("\n");
   }
 
   function environmentBlock(ctx) {
-    const place = ctx.city
-      ? `${ctx.city} skyline or street ambience where appropriate — neon, glass towers, warm tungsten mixed with cool LED.`
-      : "Urban night ambience with mixed color temperatures — cool LED spill, warm street lamps, realistic bloom, not fantasy.";
-    return [
+    const lines = [
       "",
-      "ENVIRONMENT & LIGHT:",
-      place,
-      "Light should feel sourced from the scene: reflections on paint, windshield, and dash must match visible sources.",
-      "Subtle atmospheric haze acceptable; avoid heavy fog unless the idea implies it.",
-    ].join("\n");
+      "ENVIRONMENT, LIGHT & ATMOSPHERE:",
+    ];
+    if (ctx.hasWater && ctx.hasNight) {
+      lines.push(
+        "Night on or near water: dark reflective surface with specular city or vessel lights; subtle ripples, spray, or droplets if the idea includes motion; humid air and soft atmospheric haze over distance.",
+        "Marine traffic, distant wakes, or moored craft may add scale — keep lettering on hulls plausible if visible, or omit unreadable text."
+      );
+    } else if (ctx.hasWater) {
+      lines.push(
+        "Water scene: reflections, caustics where appropriate, spray or surface tension detail; balance cool ambient with warm highlights."
+      );
+    } else if (ctx.hasNight) {
+      lines.push(
+        "Night exterior: mixed color temperatures — sodium, LED, neon, moon spill; specular highlights on wet surfaces, paint, and skin; bokeh from distant sources where depth allows.",
+        "Streetlight pools and falloff; avoid flat uniform blue night."
+      );
+    } else if (ctx.city) {
+      lines.push(
+        `${ctx.city}-appropriate architecture, signage scale, and ambient light color — not a generic skyline paste.`,
+        "Atmospheric perspective: haze or smog at distance where realistic."
+      );
+    } else {
+      lines.push(
+        "Light must read as motivated by real sources in frame; reflections and shadow direction stay consistent.",
+        "Optional gentle atmospheric haze or dust in air for depth — not heavy fantasy fog unless specified."
+      );
+    }
+    lines.push(
+      "Specular highlights on metal, glass, water, and skin must match visible light sources; no random star filters unless the lens would produce them."
+    );
+    return lines.join("\n");
+  }
+
+  function microDetailsBlock(ctx) {
+    const lines = [
+      "",
+      "MICRO-DETAILS (weave in several believable specifics tied to the idea):",
+      "— Tiny speculars: edge highlights on wet hair, jewelry glints, droplets frozen mid-air, rail or hull polish, dashboard glass flecks.",
+      "— Environmental crumbs: distant navigation lights, faint haze bands, subtle shadow gradients across skin or vehicle panels, micro-ripples, tire contact patches.",
+      "— Texture fidelity: fabric fiber, carbon weave, brushed metal grain, salt or moisture on surfaces where appropriate.",
+    ];
+    if (ctx.hasCar) {
+      lines.push("— Automotive: correct badge legibility at distance, tire sidewall text where readable, brake glow only if braking is implied.");
+    }
+    return lines.join("\n");
+  }
+
+  function openingHook(ideaLine, ctx) {
+    const time = ctx.hasNight ? "nighttime" : "the described lighting";
+    const vibe = ctx.hasWater && ctx.hasNight ? "humid, reflective, and electrically lit" : "cinematic and spatially readable";
+    const lines = [
+      "PRIMARY SCENE (expand from the anchor below):",
+      `Dramatic, hyper-realistic photograph inspired by: "${ideaLine}".`,
+      `Compose for ${time} with intentional framing — foreground and background working together, ${vibe} atmosphere, and premium material read (skin, metal, glass, water, fabric).`,
+      "The image should feel like a still from high-end lifestyle or automotive photography, not a stock composite.",
+    ];
+    if (ctx.hasPortraitCue) {
+      lines.push(
+        "Center the narrative on the Subject — pose, wardrobe, jewelry, and gaze should read clearly against the environment (e.g. skyline, vehicle, or water as a deliberate backdrop)."
+      );
+    }
+    return lines.join("\n");
   }
 
   function buildPrompt(raw, aspect, cameraKind) {
-    const ideaLine = raw.trim() || "a candid real-world scene";
+    const ideaLine = raw.trim() || "a candid real-world luxury scene";
     const tokens = normalizeTokens(ideaLine);
     const ctx = detectContext(tokens);
-    const cam = cameraPhrase(cameraKind);
 
-    const parts = [
-      `SCENE IDEA (anchor all details to this): "${ideaLine}"`,
+    const chunks = [
+      `SCENE ANCHOR (all details must follow this): "${ideaLine}"`,
+      "",
+      openingHook(ideaLine, ctx),
       "",
       "OUTPUT INTENT:",
-      "Generate a single photorealistic image that looks like a spontaneous phone snapshot, not a studio render or illustration.",
+      "Create one hyper-realistic photograph — natural, authentic, HD-level detail — not an illustration, not CGI sheen, not a beauty-filter portrait.",
       "",
-      "TECHNICAL PHOTOGRAPHY:",
-      `Aspect ratio: ${aspect} (compose for this frame; do not letterbox unless the platform requires).`,
-      cam,
-      "Visible sensor grain at moderate ISO, mild exposure imbalance between highlights and shadows (believable, not HDR-crushed).",
-      "Slight motion micro-blur permissible on edges if it sells handheld authenticity.",
+      referenceAndSubjectBlock(ctx),
       "",
-      "COMPOSITION & PERSPECTIVE:",
-      ctx.hasCar
-        ? [
-            "Prefer a driver's or passenger's POV when it fits the idea — phone held near eye or chest height.",
-            "Windshield and dash occupy foreground; world reads through glass with natural double reflections.",
-            "Keep horizon plausible; avoid ultra-wide distortion unless it matches a real phone ultrawide lens.",
-          ].join("\n")
-        : [
-            "Eye-level or slightly high phone angle; avoid symmetrical product-hero framing unless the idea is explicitly static.",
-            "Foreground element optional (hand, strap, fabric) to sell proximity and scale.",
-          ].join("\n"),
+      technicalBlock(cameraKind, aspect),
       "",
-      subjectBlock(ctx),
+      compositionBlock(ctx),
+      "",
       vehicleBlock(ctx, ideaLine),
       environmentBlock(ctx),
+      microDetailsBlock(ctx),
       "",
-      "MOOD:",
-      "The scene feels spontaneous and casually captured — imperfect in the way real photos are, still premium and believable.",
+      "FINAL QUALITY BAR:",
+      "Overall impression: HD, hyper-realistic, natural and authentic — consistent with the anchor idea, composition, wardrobe, and environment. If a reference image is used, the Subject must remain visually continuous with that upload.",
       "",
       "NEGATIVE (avoid):",
-      "cartoon, CGI sheen, oversharpened HDR, beauty filters, plastic skin, fake bokeh, text overlays, watermarks, extra fingers,",
-      "distorted logos, impossible anatomy, studio cyclorama, symmetrical catalog lighting.",
+      "cartoon, CGI plastic skin, oversharpened HDR, beauty-filter smoothing, fake tan, invented facial features, wrong bone structure, extra or fused fingers,",
+      "distorted logos, impossible anatomy, floating objects, random illegible text, stock sky replacement, symmetrical catalog lighting unless specified.",
     ];
 
-    return parts.filter((p) => p !== "").join("\n");
+    return chunks.filter((c) => c !== "").join("\n");
   }
 
   function setLoading(on) {

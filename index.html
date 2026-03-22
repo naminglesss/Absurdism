@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Absurdism — Prompt Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow--a" aria-hidden="true"></div>
+    <div class="bg-glow bg-glow--b" aria-hidden="true"></div>
+    <div class="bg-veil" aria-hidden="true"></div>
+
+    <header class="site-header reveal" data-reveal>
+      <div class="brand">
+        <span class="brand__mark">Absurdism</span>
+        <span class="brand__line" aria-hidden="true"></span>
+        <span class="brand__sub">Prompt Atelier</span>
+      </div>
+      <p class="tagline">
+        Compose cinematic, handheld-realistic prompts for any image model — distilled into a single, copy-ready brief.
+      </p>
+    </header>
+
+    <main class="layout">
+      <section class="panel glass reveal reveal--delay-1" data-reveal aria-labelledby="tool-title">
+        <div class="panel__shine" aria-hidden="true"></div>
+        <h1 id="tool-title" class="visually-hidden">Generate prompt</h1>
+        <div class="panel__grid">
+          <div class="field-block">
+            <label class="field-label" for="user-idea">user idea</label>
+            <textarea
+              id="user-idea"
+              class="input-idea"
+              rows="6"
+              placeholder="e.g. ferrari dubai night drive"
+              spellcheck="true"
+            ></textarea>
+            <div class="controls">
+              <div class="options">
+                <label class="opt">
+                  <span class="opt__name">aspect</span>
+                  <select id="aspect" class="select">
+                    <option value="9:16">9:16 vertical</option>
+                    <option value="4:5">4:5 portrait</option>
+                    <option value="3:4">3:4</option>
+                    <option value="1:1">1:1</option>
+                    <option value="16:9">16:9 wide</option>
+                  </select>
+                </label>
+                <label class="opt">
+                  <span class="opt__name">camera</span>
+                  <select id="camera" class="select">
+                    <option value="iphone">handheld iPhone</option>
+                    <option value="android">handheld Android</option>
+                    <option value="compact">compact camera</option>
+                  </select>
+                </label>
+              </div>
+              <button type="button" class="btn btn--primary" id="btn-generate">
+                <span class="btn__text">Generate prompt</span>
+                <span class="btn__spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field-block field-block--out">
+            <div class="out-head">
+              <span class="field-label field-label--center">generated prompt window</span>
+              <button type="button" class="btn btn--ghost" id="btn-copy" disabled>
+                Copy
+              </button>
+            </div>
+            <div class="output-wrap" id="output-wrap">
+              <div class="output-skeleton" id="output-skeleton" aria-hidden="true">
+                <span class="visually-hidden">Generating prompt</span>
+                <div class="sk-line sk-line--title"></div>
+                <div class="sk-line sk-line--long"></div>
+                <div class="sk-line sk-line--med"></div>
+                <div class="sk-line sk-line--long sk-line--dim"></div>
+                <div class="sk-line sk-line--short"></div>
+                <div class="sk-line sk-line--long"></div>
+                <div class="sk-line sk-line--med sk-line--dim"></div>
+              </div>
+              <div
+                id="output"
+                class="output"
+                role="region"
+                aria-live="polite"
+                aria-busy="false"
+                aria-label="Generated prompt"
+                tabindex="0"
+              ></div>
+            </div>
+            <p class="hint" id="copy-status"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="info reveal reveal--delay-2" data-reveal aria-labelledby="about-heading">
+        <h2 id="about-heading">What this tool does</h2>
+        <ul class="info-list">
+          <li><strong>Prompt expansion</strong> — turns a short scene idea into a structured Absurdism-style brief.</li>
+          <li><strong>Realistic photos</strong> — tuned for natural handheld lighting, sensor character, and believable perspective.</li>
+          <li><strong>Any generator</strong> — copy the text into Gemini, ChatGPT, Midjourney, Flux, or your tool of choice.</li>
+          <li><strong>Style</strong> — emphasizes candid, non-studio framing and authentic materials.</li>
+          <li><strong>Great for</strong> — lifestyle, cars, watches, gym, and luxury scenes.</li>
+        </ul>
+
+        <hr class="divider" />
+
+        <h2>How it works</h2>
+        <ol class="steps">
+          <li>Open Absurdism.</li>
+          <li>Type your scene idea.</li>
+          <li>Copy the generated prompt.</li>
+          <li>Paste it into your AI image app and generate.</li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer reveal reveal--delay-3" data-reveal>
+      <p>Absurdism — runs locally in your browser; your idea is not sent to any server.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

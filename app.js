@@ -121,12 +121,11 @@
       "Slight motion micro-blur on edges acceptable if it sells a candid capture."
     );
 
-    return ["TECHNICAL CAPTURE:", ...base].join("\n");
+    return base.join("\n");
   }
 
   function compositionBlock(ctx) {
     const lines = [
-      "COMPOSITION & CINEMATIC FRAMING:",
       "Build a deliberate, slightly unbalanced frame when it suits the idea — avoid default dead-center product symmetry unless the scene calls for it.",
       "Foreground / midground / background hierarchy: let one layer dominate (Subject, vehicle, or skyline) and let supporting elements recede with atmospheric depth.",
     ];
@@ -149,7 +148,6 @@
 
   function referenceAndSubjectBlock(ctx) {
     const lines = [
-      "REFERENCE IMAGE & SUBJECT FIDELITY (when your app accepts an image + prompt):",
       "If a reference face/body upload exists: the Subject must remain visually identical to that reference — same facial structure, proportions, skin tone, and distinguishing marks.",
       "Do not beautify, de-age, slim, or reshape the face or skull; no symmetry-forcing 'perfect' features. The Subject's face must match the reference as closely as the model allows.",
       "Describe people as \"the Subject\" — wardrobe, jewelry, skin sheen, wet hair, and accessories must follow the idea and stay physically plausible.",
@@ -174,18 +172,13 @@
     const city = ctx.city ? ` Environmental cues may echo ${ctx.city} if the idea implies that setting.` : "";
     return [
       "",
-      "VEHICLE & PROPS:",
-      `Expand this idea faithfully: "${ideaLine}".`,
-      "Nameplates and body lines must match the implied marque (e.g. hypercar proportions, active aero, carbon weave direction, panel gaps, brake hardware).",
+      "Vehicle and prop details must match the scene above — nameplates and body lines must match the implied marque (e.g. hypercar proportions, active aero, carbon weave direction, panel gaps, brake hardware).",
       "Paint: correct specular response and orange-peel subtlety; glass: realistic tint and double reflections; interior: believable stitching and trim alignment if visible." + city,
     ].join("\n");
   }
 
   function environmentBlock(ctx) {
-    const lines = [
-      "",
-      "ENVIRONMENT, LIGHT & ATMOSPHERE:",
-    ];
+    const lines = [];
     if (ctx.hasWater && ctx.hasNight) {
       lines.push(
         "Night on or near water: dark reflective surface with specular city or vessel lights; subtle ripples, spray, or droplets if the idea includes motion; humid air and soft atmospheric haze over distance.",
@@ -220,13 +213,12 @@
   function microDetailsBlock(ctx) {
     const lines = [
       "",
-      "MICRO-DETAILS (weave in several believable specifics tied to the idea):",
-      "— Tiny speculars: edge highlights on wet hair, jewelry glints, droplets frozen mid-air, rail or hull polish, dashboard glass flecks.",
-      "— Environmental crumbs: distant navigation lights, faint haze bands, subtle shadow gradients across skin or vehicle panels, micro-ripples, tire contact patches.",
-      "— Texture fidelity: fabric fiber, carbon weave, brushed metal grain, salt or moisture on surfaces where appropriate.",
+      "Weave in believable micro-details tied to the idea: tiny speculars on wet hair, jewelry glints, droplets frozen mid-air, rail or hull polish, dashboard glass flecks; environmental crumbs such as distant navigation lights, faint haze bands, subtle shadow gradients across skin or vehicle panels, micro-ripples, tire contact patches; texture fidelity in fabric fiber, carbon weave, brushed metal grain, salt or moisture on surfaces where appropriate.",
     ];
     if (ctx.hasCar) {
-      lines.push("— Automotive: correct badge legibility at distance, tire sidewall text where readable, brake glow only if braking is implied.");
+      lines.push(
+        "For vehicles: correct badge legibility at distance, tire sidewall text where readable, brake glow only if braking is implied."
+      );
     }
     return lines.join("\n");
   }
@@ -235,9 +227,7 @@
     const time = ctx.hasNight ? "nighttime" : "the described lighting";
     const vibe = ctx.hasWater && ctx.hasNight ? "humid, reflective, and electrically lit" : "cinematic and spatially readable";
     const lines = [
-      "PRIMARY SCENE (expand from the anchor below):",
-      `Dramatic, hyper-realistic photograph inspired by: "${ideaLine}".`,
-      `Compose for ${time} with intentional framing — foreground and background working together, ${vibe} atmosphere, and premium material read (skin, metal, glass, water, fabric).`,
+      `Dramatic, hyper-realistic photograph of ${ideaLine}. Compose for ${time} with intentional framing — foreground and background working together, ${vibe} atmosphere, and premium material read (skin, metal, glass, water, fabric).`,
       "The image should feel like a still from high-end lifestyle or automotive photography, not a stock composite.",
     ];
     if (ctx.hasPortraitCue) {
@@ -254,11 +244,8 @@
     const ctx = detectContext(tokens);
 
     const chunks = [
-      `SCENE ANCHOR (all details must follow this): "${ideaLine}"`,
-      "",
       openingHook(ideaLine, ctx),
       "",
-      "OUTPUT INTENT:",
       "Create one hyper-realistic photograph — natural, authentic, HD-level detail — not an illustration, not CGI sheen, not a beauty-filter portrait.",
       "",
       referenceAndSubjectBlock(ctx),
@@ -271,11 +258,9 @@
       environmentBlock(ctx),
       microDetailsBlock(ctx),
       "",
-      "FINAL QUALITY BAR:",
-      "Overall impression: HD, hyper-realistic, natural and authentic — consistent with the anchor idea, composition, wardrobe, and environment. If a reference image is used, the Subject must remain visually continuous with that upload.",
+      "Overall impression: HD, hyper-realistic, natural and authentic — consistent with the scene, composition, wardrobe, and environment. If a reference image is used, the Subject must remain visually continuous with that upload.",
       "",
-      "NEGATIVE (avoid):",
-      "cartoon, CGI plastic skin, oversharpened HDR, beauty-filter smoothing, fake tan, invented facial features, wrong bone structure, extra or fused fingers,",
+      "Avoid: cartoon, CGI plastic skin, oversharpened HDR, beauty-filter smoothing, fake tan, invented facial features, wrong bone structure, extra or fused fingers,",
       "distorted logos, impossible anatomy, floating objects, random illegible text, stock sky replacement, symmetrical catalog lighting unless specified.",
     ];
 
@@ -321,7 +306,7 @@
       setLoading(false);
       el.status.textContent = el.idea.value.trim()
         ? ""
-        : "Using a generic anchor — add your scene idea for a tailored prompt.";
+        : "Add your scene idea above for a tailored prompt.";
     }, LOADING_MS);
   }
 
